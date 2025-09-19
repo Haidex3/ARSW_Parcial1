@@ -42,7 +42,7 @@ public class PiDigits {
             threads=new CountThread[div];
             for (int i=start; i<div ; i++){
                 threads[i]=new CountThread();
-                threads[i].start();
+                threads[i].start(i, i+div);
             }for (int i=start; i<div ; i++){
                 threads[i].join();
             }
@@ -50,10 +50,12 @@ public class PiDigits {
         }
         else {
             threads=new CountThread[div+1];
-            for (int i=start; i<div+1 ; i++){
+            for (int i=start; i<div ; i++){
                 threads[i]=new CountThread();
-                threads[i].start();
+                threads[i].start(i, i+div);
             }
+            threads[div+1]=new CountThread();
+            threads[div+1].start((div*N),count);
             for (int i=start; i<div ; i++){
                 threads[i].join();
             }
