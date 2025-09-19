@@ -1,5 +1,10 @@
 package edu.eci.arsw.math;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import static java.lang.Thread.sleep;
+
 ///  <summary>
 ///  An implementation of the Bailey-Borwein-Plouffe formula for calculating hexadecimal
 ///  digits of pi.
@@ -18,7 +23,8 @@ public class PiDigits {
      * @param count The number of digits to return
      * @return An array containing the hexadecimal digits.
      */
-    public static byte[] getDigits(int start, int count) {
+    public static byte[] getDigits(int start, int count, int N) throws InterruptedException {
+        CountThread[] threads;
         if (start < 0) {
             throw new RuntimeException("Invalid Interval");
         }
@@ -29,6 +35,32 @@ public class PiDigits {
 
         byte[] digits = new byte[count];
         double sum = 0;
+
+        int rest = (count-start);
+        int div = (rest/N);
+        if  ((div*N)==rest){
+            threads=new CountThread[div];
+            for (int i=start; i<div ; i++){
+                threads[i]=new CountThread();
+                threads[i].start();
+            }for (int i=start; i<div ; i++){
+                threads[i].join();
+            }
+
+        }
+        else {
+            threads=new CountThread[div+1];
+            for (int i=start; i<div+1 ; i++){
+                threads[i]=new CountThread();
+                threads[i].start();
+            }
+            for (int i=start; i<div ; i++){
+                threads[i].join();
+            }
+        }
+
+        stoped(threads, div, N , rest, start);
+
 
         for (int i = 0; i < count; i++) {
             if (i % DigitsPerSum == 0) {
@@ -108,6 +140,23 @@ public class PiDigits {
         }
 
         return result;
+    }
+
+    private static void stoped(CountThread[] threads, int div, int N, int rest, int start) throws InterruptedException {
+        sleep(5000);
+
+        if  ((div*N)==rest){
+            for (int i=start; i<div ; i++){
+                threads[i].interrupt();
+            }
+
+        }
+        else {
+            for (int i=start; i<div ; i++){
+                threads[i].interrupt();
+            }
+        }
+
     }
 
 }
